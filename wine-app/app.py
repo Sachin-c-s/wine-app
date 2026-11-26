@@ -188,7 +188,7 @@ def result_html(p):
         f'<div class="wq-card wq-{key}">'
         f'<div class="wq-vrow"><div class="wq-icon" aria-hidden="true">{icon}</div>'
         f'<div class="wq-vtext"><div class="wq-vtitle">{title}</div>'
-        f'<div class="wq-vsub">Chance this is a good wine (rated 6 or higher)</div></div>'
+        f'<div class="wq-vsub">Chance of a good wine (rated 6 or higher)</div></div>'
         f'<div class="wq-pct">{pct}<span>%</span></div></div>'
         f'<div class="wq-gauge" role="img" aria-label="{pct} percent chance of a good wine. {title}.">'
         f'<div class="wq-track"><div class="wq-fill" style="width:{pct}%"></div>'
@@ -215,16 +215,16 @@ def drivers_html(items, kind, values, stats, scale):
     for f, d in items:
         meta = FEATURES[f]
         word = "higher" if values[f] > stats["median"][f] else "lower"
-        sub = (f'{word} than typical ({fmt_val(values[f], meta["dec"])} vs '
-               f'{fmt_val(stats["median"][f], meta["dec"])} {meta["unit"]})')
+        tip = (f'{fmt_val(values[f], meta["dec"])} vs typical '
+               f'{fmt_val(stats["median"][f], meta["dec"])} {meta["unit"]}')
         width = max(4, round(abs(d) / scale * 100))
         pts = abs(d) * 100
         sign = "+" if d > 0 else "−"
         txt = f"{sign}{pts:.0f} pts" if pts >= 0.5 else f"{sign}<1 pt"
         rows.append(
-            f'<div class="wq-drv"><div class="wq-drv-name">{meta["label"]}<small>{sub}</small></div>'
-            f'<div class="wq-drv-bar"><div class="wq-drv-fill {kind}" style="width:{width}%"></div></div>'
-            f'<div class="wq-drv-val">{txt}</div></div>'
+            f'<div class="wq-drv" title="{tip}"><div class="wq-drv-top">'
+            f'<span>{meta["label"]}<small>{word} than typical</small></span><b>{txt}</b></div>'
+            f'<div class="wq-drv-bar"><div class="wq-drv-fill {kind}" style="width:{width}%"></div></div></div>'
         )
     return "".join(rows)
 
@@ -238,13 +238,17 @@ CSS = """
   --wq-line:rgba(128,128,128,.28);
   --wq-soft:rgba(128,128,128,.07);
 }
-[data-testid="stMainBlockContainer"],.block-container{max-width:1100px;padding-top:2rem;}
+[data-testid="stMainBlockContainer"],.block-container{max-width:1100px;padding-top:3.2rem;padding-bottom:1rem;}
+[data-testid="stVerticalBlock"]{gap:.5rem;}
+[data-testid="stTickBar"],[data-testid="stTickBarMin"],[data-testid="stTickBarMax"]{display:none;}
+[data-testid="stSlider"]{padding-bottom:0;}
+[data-testid="stCaptionContainer"]{margin-top:-.7rem;}
 html,body,.stApp{overflow-x:hidden;}
 .wq-hero h1{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:.2px;
-  color:var(--wq-accent-text);margin:0 0 .25rem 0;padding:0;font-size:2.2rem;line-height:1.15;}
-.wq-hero p{margin:0 0 1rem 0;opacity:.75;font-size:1.02rem;}
+  color:var(--wq-accent-text);margin:0;padding:.45rem 0 .15rem 0;font-size:2rem;line-height:1.4;overflow:visible;}
+.wq-hero p{margin:0 0 .4rem 0;opacity:.75;font-size:.98rem;}
 h4,h5{font-family:Georgia,'Times New Roman',serif;font-weight:600;}
-.wq-card{border:1px solid var(--wq-line);border-radius:16px;padding:1.2rem 1.3rem;margin:.25rem 0 1rem 0;
+.wq-card{border:1px solid var(--wq-line);border-radius:16px;padding:1rem 1.2rem;margin:.1rem 0 .6rem 0;
   background:var(--wq-soft);}
 .wq-good{--tone:46,125,80;}
 .wq-bad{--tone:139,30,63;}
@@ -259,33 +263,32 @@ h4,h5{font-family:Georgia,'Times New Roman',serif;font-weight:600;}
 .wq-vsub{opacity:.75;font-size:.9rem;margin-top:.15rem;}
 .wq-pct{flex:0 0 auto;font-family:Georgia,'Times New Roman',serif;font-size:2.8rem;font-weight:600;line-height:1;}
 .wq-pct span{font-size:1.4rem;opacity:.7;}
-.wq-gauge{margin-top:1.1rem;}
+.wq-gauge{margin-top:.8rem;}
 .wq-track{position:relative;height:16px;border-radius:999px;background:rgba(128,128,128,.25);overflow:hidden;}
 .wq-fill{height:100%;border-radius:999px;background:rgb(var(--tone));}
 .wq-mark{position:absolute;top:0;bottom:0;width:2px;background:rgba(128,128,128,.9);}
 .wq-zones{display:flex;margin-top:.3rem;font-size:.75rem;opacity:.7;}
 .wq-zones span{text-align:center;}
-.wq-nudge{border:1px dashed var(--wq-line);border-radius:12px;padding:.75rem 1rem;margin:0 0 1rem 0;font-size:.95rem;}
+.wq-nudge{border:1px dashed var(--wq-line);border-radius:12px;padding:.55rem .9rem;margin:0 0 .5rem 0;font-size:.92rem;}
 .wq-muted{opacity:.65;font-size:.9rem;padding:.2rem 0 .6rem 0;}
 .wq-sec{font-weight:600;margin:.6rem 0 .2rem 0;}
-.wq-drv{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) 4.2rem;gap:.7rem;align-items:center;margin:.35rem 0;}
-.wq-drv-name{font-size:.95rem;line-height:1.2;}
-.wq-drv-name small{display:block;opacity:.65;font-size:.76rem;margin-top:.1rem;}
-.wq-drv-bar{height:10px;border-radius:999px;background:rgba(128,128,128,.2);overflow:hidden;}
+.wq-drv{margin:.45rem 0;}
+.wq-drv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;font-size:.9rem;line-height:1.2;margin-bottom:.25rem;}
+.wq-drv-top small{display:block;opacity:.65;font-size:.74rem;}
+.wq-drv-top b{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.wq-drv-bar{height:8px;border-radius:999px;background:rgba(128,128,128,.2);overflow:hidden;}
 .wq-drv-fill{height:100%;border-radius:999px;}
 .wq-drv-fill.pos{background:rgb(46,125,80);}
 .wq-drv-fill.neg{background:rgb(168,40,78);}
-.wq-drv-val{text-align:right;font-variant-numeric:tabular-nums;font-size:.9rem;}
 .wq-foot{opacity:.65;font-size:.82rem;margin-top:1.2rem;border-top:1px solid var(--wq-line);padding-top:.8rem;}
-.stButton button{border-radius:999px;border:1px solid rgba(139,30,63,.55);min-height:2.6rem;}
+.stButton button{border-radius:999px;border:1px solid rgba(139,30,63,.55);min-height:2.4rem;padding:.2rem .5rem;}
+.stButton button p{font-size:.8rem;line-height:1.15;}
 .stButton button:hover{border-color:#8B1E3F;color:var(--wq-accent-text);}
 [data-testid="stExpander"]{border:1px solid var(--wq-line);border-radius:14px;}
 @media (max-width:640px){
   .wq-hero h1{font-size:1.7rem;}
   .wq-vtitle{font-size:1.25rem;}
   .wq-pct{font-size:2.1rem;}
-  .wq-drv{grid-template-columns:minmax(0,1fr) 4rem;}
-  .wq-drv-bar{grid-column:1 / span 2;grid-row:2;}
 }
 </style>
 """
@@ -339,12 +342,12 @@ def feature_slider(c):
     step, fmt = slider_spec(lo, hi, meta["dec"])
     st.slider(f'{meta["label"]} ({meta["unit"]})', min_value=lo, max_value=hi, step=step,
               format=fmt, key=KEY[c], help=meta["help"])
-    st.caption(f'{c} · typical: {fmt_val(med, meta["dec"])} {meta["unit"]}')
+    st.caption(f'{c} · typical {fmt_val(med, meta["dec"])} · range {fmt_val(lo, meta["dec"])}–{fmt_val(hi, meta["dec"])} {meta["unit"]}')
 
 
 st.markdown(
     '<div class="wq-hero"><h1>🍷 Wine Quality Predictor</h1>'
-    '<p>Move a slider or pick a style. The verdict updates instantly.</p></div>',
+    '<p>Move a slider or pick a quick style. The verdict updates instantly.</p></div>',
     unsafe_allow_html=True,
 )
 
@@ -355,15 +358,11 @@ with tab_predict:
     left, right = st.columns(2, gap="large")
 
     with left:
-        st.markdown("##### Quick styles")
-        names = list(PRESETS)
-        r1 = st.columns(2)
-        r2 = st.columns(2)
-        for slot, name in zip(r1 + r2, names):
-            slot.button(name, key="btn_" + name, on_click=apply_preset, args=(name,))
-        st.button("Reset everything", key="btn_reset", on_click=apply_preset, args=("Typical wine",))
+        pcols = st.columns(5, gap="small")
+        for slot, name in zip(pcols, list(PRESETS)):
+            slot.button(name, key="btn_" + name, on_click=apply_preset, args=(name,), help="Quick style")
+        pcols[4].button("Reset", key="btn_reset", on_click=apply_preset, args=("Typical wine",))
 
-        st.markdown("##### Your wine")
         for c in MAIN:
             feature_slider(c)
 
@@ -384,17 +383,20 @@ with tab_predict:
             st.markdown(nudge_html(nudge), unsafe_allow_html=True)
 
         st.markdown("##### Why this result")
-        st.caption("Compared with a typical wine: how much each setting adds to or takes from the chance of a good wine.")
         pos, neg = compute_drivers(model, scaler, cols, stats, values)
         if not pos and not neg:
             st.markdown('<div class="wq-muted">Nothing stands out. This looks like a typical wine.</div>',
                         unsafe_allow_html=True)
         else:
             scale = max(abs(d) for _, d in pos + neg)
-            st.markdown('<div class="wq-sec">Working in its favour</div>', unsafe_allow_html=True)
-            st.markdown(drivers_html(pos, "pos", values, stats, scale), unsafe_allow_html=True)
-            st.markdown('<div class="wq-sec">Working against it</div>', unsafe_allow_html=True)
-            st.markdown(drivers_html(neg, "neg", values, stats, scale), unsafe_allow_html=True)
+            dl, dr = st.columns(2, gap="medium")
+            with dl:
+                st.markdown('<div class="wq-sec">Working in its favour</div>', unsafe_allow_html=True)
+                st.markdown(drivers_html(pos, "pos", values, stats, scale), unsafe_allow_html=True)
+            with dr:
+                st.markdown('<div class="wq-sec">Working against it</div>', unsafe_allow_html=True)
+                st.markdown(drivers_html(neg, "neg", values, stats, scale), unsafe_allow_html=True)
+            st.caption("Compared with a typical wine. Hover a row for the exact values.")
 
 # ================= How it works =================
 with tab_how:
