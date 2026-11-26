@@ -242,7 +242,7 @@ CSS = """
 [data-testid="stVerticalBlock"]{gap:.5rem;}
 [data-testid="stTickBar"],[data-testid="stTickBarMin"],[data-testid="stTickBarMax"]{display:none;}
 [data-testid="stSlider"]{padding-bottom:0;}
-[data-testid="stCaptionContainer"]{margin-top:-.7rem;}
+.wq-cap{margin:-.55rem 0 .3rem 0;font-size:.82rem;opacity:.65;line-height:1.3;}
 html,body,.stApp{overflow-x:hidden;}
 .wq-hero h1{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:.2px;
   color:var(--wq-accent-text);margin:0;padding:.45rem 0 .15rem 0;font-size:2rem;line-height:1.4;overflow:visible;}
